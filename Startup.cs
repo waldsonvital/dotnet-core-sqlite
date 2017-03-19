@@ -15,7 +15,7 @@ namespace superprojeto
         }
         
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory log){
-
+            app.UseDeveloperExceptionPage();
             app.UseMvcWithDefaultRoute();
         }
     }

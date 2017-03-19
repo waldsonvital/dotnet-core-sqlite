@@ -8,6 +8,7 @@ namespace superprojeto.Controllers
     [RouteAttribute("api")]
     public class HomeController : Controller
     {
+        // retona todos os produto
         [HttpGetAttribute]
         public IEnumerable<Produto> Index(){
             var lista = new List<Produto>();
@@ -23,6 +24,7 @@ namespace superprojeto.Controllers
             return lista;
         }
         
+        // retorno o produto de um id expecifico
         [HttpGetAttribute("{id}")]
         public Produto getById(int id){
            Produto produto;
@@ -35,6 +37,7 @@ namespace superprojeto.Controllers
            return produto;
         }
 
+        // insere um produto
         [HttpPostAttribute]
         public IActionResult Insert([FromBodyAttribute] Produto produto){
             using(var db = new ProdutoContext())
@@ -45,6 +48,7 @@ namespace superprojeto.Controllers
             return Ok();
         }
 
+        // atualiza um produto
         [HttpPutAttribute("{id}")]
         public IActionResult update(int id, [FromBodyAttribute] Produto produto){
             using(var db = new ProdutoContext())
@@ -57,6 +61,7 @@ namespace superprojeto.Controllers
             return Ok();
         }
 
+        // deleta um produto
         [HttpDeleteAttribute("{id}")]
         public IActionResult delete(int id){
             using(var db = new ProdutoContext())
