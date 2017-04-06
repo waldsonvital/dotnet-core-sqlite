@@ -8,17 +8,20 @@ namespace superprojeto.Controllers
     [RouteAttribute("api")]
     public class HomeController : Controller
     {
+        private ProdutoContext DB { get; set; }
+        public HomeController([FromServicesAttribute] ProdutoContext DB){
+            this.DB = DB;
+        }
+
+
         // retona todos os produto
         [HttpGetAttribute]
         public IEnumerable<Produto> Index(){
             var lista = new List<Produto>();
             
-            using(var db = new ProdutoContext())
+            foreach (var item in DB.Produtos)
             {
-                foreach (var item in db.Produtos)
-                {
-                    lista.Add(item);
-                }
+                lista.Add(item);
             }
 
             return lista;
@@ -27,36 +30,35 @@ namespace superprojeto.Controllers
         // retorno o produto de um id expecifico
         [HttpGetAttribute("{id}")]
         public Produto getById(int id){
-           Produto produto;
+            Produto produto;
 
-           using(var db = new ProdutoContext())
-           {
-               produto = db.Produtos.First(item => item.id == id);
-           }
+            produto = DB.Produtos.First(item => item.id == id);
 
-           return produto;
+            return produto;
         }
 
         // insere um produto
         [HttpPostAttribute]
         public IActionResult Insert([FromBodyAttribute] Produto produto){
-            using(var db = new ProdutoContext())
-            {
-                db.Produtos.Add(produto);
-                db.SaveChanges();
+            if(ModelState.IsValid){
+                DB.Produtos.Add(produto);
+                DB.SaveChanges();
+                return Ok();
+            }else{
+                return BadRequest(ModelState);
             }
-            return Ok();
         }
 
         // atualiza um produto
         [HttpPutAttribute("{id}")]
         public IActionResult update(int id, [FromBodyAttribute] Produto produto){
-            using(var db = new ProdutoContext())
-            {
-                var itemUpdate = db.Produtos.Where(item => item.id == id).FirstOrDefault();
+            if(ModelState.IsValid){
+                var itemUpdate = DB.Produtos.Where(item => item.id == id).FirstOrDefault();
 
                 itemUpdate.nome = produto.nome;
-                db.SaveChanges();
+                DB.SaveChanges();
+            }else{
+                return BadRequest(ModelState);
             }
             return Ok();
         }
@@ -64,12 +66,9 @@ namespace superprojeto.Controllers
         // deleta um produto
         [HttpDeleteAttribute("{id}")]
         public IActionResult delete(int id){
-            using(var db = new ProdutoContext())
-            {
-                var itemDelete = db.Produtos.Where(item => item.id == id).FirstOrDefault();
-                db.Produtos.Remove(itemDelete);
-                db.SaveChanges();
-            }
+            var itemDelete = DB.Produtos.Where(item => item.id == id).FirstOrDefault();
+            DB.Produtos.Remove(itemDelete);
+            DB.SaveChanges();
             return Ok();
         }
     }
