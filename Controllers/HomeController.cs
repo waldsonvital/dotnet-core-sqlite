@@ -8,17 +8,18 @@ namespace superprojeto.Controllers
     [RouteAttribute("api")]
     public class HomeController : Controller
     {
+        public ProdutoContext db { get; set; }
+        public HomeController([FromServicesAttribute]ProdutoContext db){
+            this.db = db;
+        }
         // retona todos os produto
         [HttpGetAttribute]
         public IEnumerable<Produto> Index(){
             var lista = new List<Produto>();
             
-            using(var db = new ProdutoContext())
+            foreach (var item in db.Produtos)
             {
-                foreach (var item in db.Produtos)
-                {
-                    lista.Add(item);
-                }
+                lista.Add(item);
             }
 
             return lista;
@@ -29,10 +30,7 @@ namespace superprojeto.Controllers
         public Produto getById(int id){
            Produto produto;
 
-           using(var db = new ProdutoContext())
-           {
-               produto = db.Produtos.First(item => item.id == id);
-           }
+            produto = db.Produtos.First(item => item.id == id);
 
            return produto;
         }
@@ -40,10 +38,11 @@ namespace superprojeto.Controllers
         // insere um produto
         [HttpPostAttribute]
         public IActionResult Insert([FromBodyAttribute] Produto produto){
-            using(var db = new ProdutoContext())
-            {
+            if(ModelState.IsValid){
                 db.Produtos.Add(produto);
                 db.SaveChanges();
+            }else{
+                return BadRequest(ModelState);
             }
             return Ok();
         }
@@ -51,25 +50,19 @@ namespace superprojeto.Controllers
         // atualiza um produto
         [HttpPutAttribute("{id}")]
         public IActionResult update(int id, [FromBodyAttribute] Produto produto){
-            using(var db = new ProdutoContext())
-            {
-                var itemUpdate = db.Produtos.Where(item => item.id == id).FirstOrDefault();
+            var itemUpdate = db.Produtos.Where(item => item.id == id).FirstOrDefault();
 
-                itemUpdate.nome = produto.nome;
-                db.SaveChanges();
-            }
+            itemUpdate.nome = produto.nome;
+            db.SaveChanges();
             return Ok();
         }
 
         // deleta um produto
         [HttpDeleteAttribute("{id}")]
         public IActionResult delete(int id){
-            using(var db = new ProdutoContext())
-            {
-                var itemDelete = db.Produtos.Where(item => item.id == id).FirstOrDefault();
-                db.Produtos.Remove(itemDelete);
-                db.SaveChanges();
-            }
+            var itemDelete = db.Produtos.Where(item => item.id == id).FirstOrDefault();
+            db.Produtos.Remove(itemDelete);
+            db.SaveChanges();
             return Ok();
         }
     }
